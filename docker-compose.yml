@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+    main-api:
+        build:
+            context:  ./
+            dockerfile: Dockerfile
+        ports:
+            - "1234:80"
+        depends_on:
+            - db
+        environment:
+            ASPNETCORE_ENVIRONMENT: Development
+    db:
+        image: "mcr.microsoft.com/mssql/server"
+        environment:
+            ASPNETCORE_ENVIRONMENT: Development       

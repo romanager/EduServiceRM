@@ -26,6 +26,7 @@ namespace EduServiceRM
                 DataSeeder.SeedGroups(context, 9);
                 DataSeeder.SeedUserGroups(context);
                 DataSeeder.SeedVideos(context, 30);
+                DataSeeder.UpdateVideos(context, 30);
                 DataSeeder.SeedUserVideos(context);
                 DataSeeder.SeedFlows(context, 12);
                 DataSeeder.SeedUserFlows(context);

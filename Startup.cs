@@ -29,7 +29,7 @@ namespace EduServiceRM
         public void ConfigureServices(IServiceCollection services)
         {
 
-            string connectionString = "Server=DESKTOP-0QCO97P\\SQLEXPRESS;Database=EduServRM;Trusted_Connection=True;";
+            string connectionString = "Server=.\\SQLEXPRESS;Database=EduServRM;Trusted_Connection=True;";
             services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(connectionString));
             //services.AddDbContext<ApplicationContext>(options => options.UseSqlServer("DefaultConnection"));
 

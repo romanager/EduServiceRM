@@ -73,19 +73,29 @@ namespace EduServiceRM.Models
             {
                 var videos = new List<Video>(count);
 
-                lock(locker)
+                for (int i = 0; i < count; i++)
                 {
-                    for (int i = 0; i < count; i++)
-                    {
-                        videos.Add(new Video { Name = $"Video {count - i}" });
-                    }
-                    Thread.Sleep(100);
+                    videos.Add(new Video { });
                 }
-                
                 context.AddRange(videos);
                 context.SaveChanges();
             }
         }
+
+        public static void UpdateVideos(ApplicationContext context, int count)
+        {
+            if (context.Videos.Any())
+            {
+                var videos = context.Videos.ToList();
+
+                foreach (var i in videos)
+                    i.Name = $"Video {i.Id}";
+
+                context.UpdateRange(videos);
+                context.SaveChanges();
+            }
+        }
+
 
         public static void SeedUserVideos(ApplicationContext context)
         {
@@ -163,7 +173,7 @@ namespace EduServiceRM.Models
                     new GroupVideo { GroupId = 1, VideoId = 2, Priority = Priority.high },
                     new GroupVideo { GroupId = 2, VideoId = 3, Priority = Priority.high },
                     new GroupVideo { GroupId = 3, VideoId = 4, Priority = Priority.high},
-                    new GroupVideo { GroupId = 4, VideoId = 8, Priority = Priority.medium },
+                    new GroupVideo { GroupId = 5, VideoId = 8, Priority = Priority.medium },
                     new GroupVideo { GroupId = 6, VideoId = 9, Priority = Priority.high },
                     new GroupVideo { GroupId = 6, VideoId = 12, Priority = Priority.low },
                     new GroupVideo { GroupId = 7, VideoId = 22, Priority = Priority.medium },

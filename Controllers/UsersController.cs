@@ -35,22 +35,66 @@ namespace EduServiceRM.Controllers
             return "value";
         }
 
-        // POST api/<UsersController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        // GET api/<UsersController>/5
+        [HttpGet("{userId}/videos/{priority?}")]
+        public async Task<ActionResult<User>> Get(int userId, Order priority)
         {
-        }
+            var user = await context.Users
+                //.FirstOrDefaultAsync(x => x.Id == userId)
+                .Include(i => i.UserVideos)
+                    .ThenInclude(j => j.Video)
+                .Include(i => i.UserFlows)
+                    .ThenInclude(j => j.Flow)
+                    .ThenInclude(k=>k.FlowVideos)
+                    .ThenInclude(l=>l.Video)
+                .Include(i => i.UserGroups)
+                    .ThenInclude(j => j.Group)
+                    .ThenInclude(k => k.GroupVideos)
+                    .ThenInclude(l => l.Video)
+                    .ThenInclude(l => l.FlowVideos)
+                    .ThenInclude(l => l.Video)
+                .Where(x => x.Id == userId)
+                .SingleOrDefaultAsync();
 
-        // PUT api/<UsersController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+            Dictionary<string, Priority> videoPriorities = new Dictionary<string, Priority>();
 
-        // DELETE api/<UsersController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            var allVideos1 = user.UserVideos.Select(u => new { VideoName = u.Video.Name, VideoPriority = u.Priority }).ToList();
+            
+            var allVideos2 = user.UserFlows.Select(u => new
+            {
+                VideoName = u.Flow.FlowVideos.SelectMany(v => v.Video.Name),
+                VideoPriority = u.Priority}).ToList();
+            
+            var allVideos3 = user.UserGroups.Select(u => new
+            {
+                VideoName = u.Group.GroupVideos.SelectMany(v => v.Video.Name),
+                VideoPriority = u.Group.GroupVideos.Select(v => v.Priority)
+            });
+
+            //var allVideos4 = user.UserGroups.SelectMany(u => u.Group.GroupFlows);
+            var allVideos4 = user.UserGroups.Select(u => new
+            {
+                VideoName = u.Group.GroupFlows.SelectMany(v => v.Flow.FlowVideos.Select(w => w.Video.Name)),
+                VideoPriority = u.Group.GroupFlows.Select(v => v.Priority)
+            });
+
+            foreach (var video in allVideos1)
+            {
+                Priority value;
+
+                videoPriorities.TryGetValue(video.VideoName, out value);
+
+                if ((int)value >= 0)
+                {
+                    videoPriorities[video.VideoName] = video.VideoPriority;
+                }
+                else if (video.VideoPriority > value)
+                {
+                    videoPriorities[video.VideoName] = video.VideoPriority;
+                }
+            }
+                                
+            return new JsonResult(videoPriorities);
         }
     }
 }
